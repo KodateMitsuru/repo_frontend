@@ -354,6 +354,7 @@ async function error() {
 
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <title>404 Not Found (Ｔ▽Ｔ)</title>
     <link href="https://blog.kodatemitsuru.com/favicon/avatar.png" rel="icon" sizes="32x32">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jez/pandoc-markdown-css-theme/public/css/theme.css" />
@@ -580,7 +581,6 @@ async function home() {
 	
 	<head>
 		<meta charset="utf-8" />
-		<meta name="generator" content="pandoc-markdown-css-theme" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 		<title>Kodate's Archlinux repo</title>
 		<link href="https://blog.kodatemitsuru.com/favicon/avatar.png" rel="icon" sizes="32x32">
@@ -830,6 +830,7 @@ async function packages() {
 
 <head>
 	<meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 	<title>Kodate's Archlinux repo</title>
 	<link href="https://blog.kodatemitsuru.com/favicon/avatar.png" rel="icon" sizes="32x32">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jez/pandoc-markdown-css-theme/public/css/theme.css" />
