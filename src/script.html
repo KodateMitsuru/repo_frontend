@@ -1,0 +1,270 @@
+<script src="https://unpkg.com/swup@4"></script>
+<script src="https://unpkg.com/@swup/preload-plugin@3"></script>
+<script src="https://unpkg.com/@swup/scroll-plugin@3"></script>
+<script src="https://unpkg.com/@swup/head-plugin@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/pako@2.0.4/dist/pako.min.js"></script>
+<script>
+	const swup = new Swup({
+		plugins: [new SwupScrollPlugin(), new SwupPreloadPlugin(), new SwupHeadPlugin()]
+	});
+	function formatSize(size) {
+		const units = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB'];
+		let unitIndex = 0;
+
+		let value = size / 1024;
+
+		// 自动选择合适的单位
+		while (value >= 1024 && unitIndex < units.length - 1) {
+			value /= 1024;
+			unitIndex++;
+		}
+
+		// 格式化输出
+		return (value.toFixed(2).toString() + units[unitIndex]);
+	}
+	async function getFileList() {
+		try {
+			const fileList = [];
+			const response = await fetch("custom.db");
+			const arrayBuffer = await response.arrayBuffer();
+			const compressedData = new Uint8Array(arrayBuffer);
+            const decompressedData = new TextDecoder().decode(pako.ungzip(compressedData));
+			const string = decompressedData.split("\\n");
+			for (let i = 0; i < string.length - 1; i++) {
+				if (string[i].endsWith("%FILENAME%")) {
+					fileList.push({"name":string[i + 1],"size":"Loading..."});
+					fileList.push({"name":string[i + 1]+".sig","size":"Loading..."});
+				}
+			}
+			if (fileList.length === 0) {
+				console.log('No File found');
+			}
+			return fileList;
+			
+		} catch (error) {
+			console.error('There was a problem with the fetch operation:', error);
+		}
+	}
+
+	async function fetchLFSFileSize(url) {
+		try {
+			const response = await fetch(url);
+			const text = await response.text();
+			const sizeLine = text.split("\\n").find(line => line.startsWith('size'));
+			if (sizeLine) {
+				const size = sizeLine.split(' ')[1];
+				return size;
+			} else {
+				throw new Error('Size not found in file content');
+			}
+		} catch (error) {
+			console.error('Error fetching file content size:', error);
+			return 0;
+		}
+	}
+	async function fetchFileSize(file) {
+		const cachedSize = localStorage.getItem(file);
+		if (cachedSize) {
+			size = cachedSize;
+		} else {
+			size = await fetchLFSFileSize("https://raw.githubusercontent.com/KodateMitsuru/customrepo/refs/heads/main/" + file);
+			localStorage.setItem(file, size);
+		}
+		const sizeStr = formatSize(size);
+		return sizeStr;
+	}
+
+	async function fetchFileSHA256(url) {
+		const cachedHash = localStorage.getItem(url);
+		if (cachedHash) {
+			return cachedHash;
+		} else {
+			try {
+				const response = await fetch(url);
+				const text = await response.text();
+				const shaLine = text.split("\\n").find(line => line.startsWith('oid sha256:'));
+				if (shaLine) {
+					const sha = shaLine.split(':')[1];
+					localStorage.setItem(url, sha);
+					return sha;
+				} else {
+					throw new Error('SHA256 not found in file content');
+				}
+			} catch (error) {
+				console.error('Error fetching file SHA256:', error);
+				return 'Unknown SHA256';
+			}
+		}
+	}
+
+	async function renderFileList() {
+		const fileList = await getFileList();
+
+		const container = document.getElementById('file-list-container');
+		if (!container) return;
+		const descriptionRow = document.createElement('div');
+		descriptionRow.className = 'file-list-item';
+		descriptionRow.style.fontWeight = 'bold';
+
+		const nameDescription = document.createElement('span');
+		nameDescription.className = 'file-name';
+		nameDescription.textContent = '文件名';
+		descriptionRow.appendChild(nameDescription);
+
+		const sizeDescription = document.createElement('span');
+		sizeDescription.className = 'file-size';
+		sizeDescription.textContent = '大小';
+		descriptionRow.appendChild(sizeDescription);
+
+		const shaDescription = document.createElement('span');
+		shaDescription.className = 'file-sha';
+		shaDescription.textContent = 'HASH';
+		descriptionRow.appendChild(shaDescription);
+
+		container.appendChild(descriptionRow);
+		fileList.forEach(async file => {
+			const li = document.createElement('li');
+			li.className = 'file-list-item';
+
+			const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+			icon.setAttribute("viewBox", "0 0 20 20");
+			icon.setAttribute("fill", "none");
+			icon.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+			icon.classList.add("file-icon");
+
+			const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+			path.setAttribute("d", "M4 4C4 2.89543 4.89543 2 6 2H11L16 7V16C16 17.1046 15.1046 18 14 18H6C4.89543 18 4 17.1046 4 16V4Z");
+			path.setAttribute("stroke", "#5C667A");
+			path.setAttribute("stroke-width", "1.5");
+			path.setAttribute("stroke-linecap", "round");
+			path.setAttribute("stroke-linejoin", "round");
+
+			icon.appendChild(path);
+
+			const nameLink = document.createElement('a');
+			nameLink.href = file.name;
+			nameLink.textContent = file.name;
+
+			const nameSpan = document.createElement('span');
+			nameSpan.className = 'file-name';
+			nameSpan.appendChild(icon);
+			nameSpan.appendChild(nameLink);
+
+			const sizeSpan = document.createElement('span');
+			sizeSpan.className = 'file-size';
+			sizeSpan.textContent = file.size;
+
+			const shaButtonSpan = document.createElement('span');
+			shaButtonSpan.className = 'file-sha';
+			const shaButton = document.createElement('button');
+			shaButton.className = 'copy-button';
+			shaButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="currentColor"/></svg>';
+			shaButton.dataset.sha256Values = "";
+			shaButton.addEventListener('click', async () => {
+				navigator.clipboard.writeText(shaButton.dataset.sha256Values).then(() => {
+					shaButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="currentColor"/></svg>';
+					// 创建并显示复制成功的提示
+					const successMessage = document.createElement('div');
+					successMessage.className = 'copy-success';
+					successMessage.textContent = '复制成功!';
+					document.body.appendChild(successMessage);
+
+					// 设置提示的位置
+					const rect = shaButton.getBoundingClientRect();
+					successMessage.style.top = (rect.bottom - 30).toString() + "px";
+					successMessage.style.left = (rect.right + 10).toString() + "px";
+					setTimeout(() => {
+						successMessage.classList.add('fade-out');
+						successMessage.addEventListener('transitionend', () => {
+							document.body.removeChild(successMessage);
+						});
+						setTimeout(() => {
+							shaButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="currentColor"/></svg>';
+						}, 1500);
+					}, 500);
+				}).catch(err => {
+					console.error('Failed to copy text: ', err);
+					// 创建并显示复制失败的提示
+					const successMessage = document.createElement('div');
+					successMessage.className = 'copy-success';
+					successMessage.textContent = '复制失败!';
+					document.body.appendChild(successMessage);
+
+					// 设置提示的位置
+					const rect = shaButton.getBoundingClientRect();
+					successMessage.style.top = (rect.bottom - 30).toString() + "px";
+					successMessage.style.left = (rect.right + 10).toString() + "px";
+					setTimeout(() => {
+						successMessage.classList.add('fade-out');
+						successMessage.addEventListener('transitionend', () => {
+							document.body.removeChild(successMessage);
+						});
+						setTimeout(() => {
+							shaButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="currentColor"/></svg>';
+						}, 1500);
+					}, 500);
+				});
+			});
+
+			shaButtonSpan.appendChild(shaButton);
+
+			li.appendChild(nameSpan);
+			li.appendChild(sizeSpan);
+			li.appendChild(shaButtonSpan);
+			container.appendChild(li);
+			shaButton.dataset.sha256Values = await fetchFileSHA256("https://raw.githubusercontent.com/KodateMitsuru/customrepo/refs/heads/main/" + file.name);
+			sizeSpan.textContent = await fetchFileSize(file.name);
+		});
+	}
+
+	function navInEvent (event) {
+		if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)){
+			const menuItems = document.querySelectorAll('.navbar a');
+			for (const menuItem of menuItems) {
+				menuItem.style.display = "block";
+				menuItem.style.animation = 'slideIn 0.3s forwards';
+			}
+		}
+	}
+
+	function navOutEvent (event) {
+		if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)) {
+			const menuItems = document.querySelectorAll('.navbar a');
+			for (const menuItem of menuItems) {
+				menuItem.style.animation = 'slideOut 0.15s forwards';
+				setTimeout(()=>{menuItem.style.display = "none";},150);
+			}
+		}
+	}
+
+	function renderMenu () {
+		const navbar = document.querySelector('.navbar');
+		if (window.innerWidth <= 600){
+			const menuItems = document.querySelectorAll('.navbar a');
+			for (const menuItem of menuItems) {
+				menuItem.style.display = "none";
+			}
+			navbar.addEventListener("mouseover", navInEvent);
+			navbar.addEventListener("mouseout", navOutEvent);
+		} else {
+			navbar.removeEventListener("mouseover", navInEvent);
+			navbar.removeEventListener("mouseout", navOutEvent);
+			const menuItems = document.querySelectorAll('.navbar a');
+			for (const menuItem of menuItems) {
+				menuItem.style.display = "block";
+				menuItem.style.animation = '';
+			}
+		}
+	}
+	swup.hooks.on('content:replace', async () => { 
+		await renderFileList();
+		renderMenu();
+	});
+	document.addEventListener('DOMContentLoaded', async () => {
+		await renderFileList();
+		renderMenu();
+	});
+	window.addEventListener('resize', function() {
+		renderMenu();
+	});
+</script>

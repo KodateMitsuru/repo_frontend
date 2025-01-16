@@ -1,0 +1,277 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jez/pandoc-markdown-css-theme/public/css/theme.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jez/pandoc-markdown-css-theme/public/css/skylighting-solarized-theme.css" />
+<style type="text/css">
+    body {
+        background-image: url('https://s2.loli.net/2025/01/16/LsPzykvcarbxpiK.webp');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+
+    .navbar {
+        left: 50%;
+        transform: translateX(-50%);
+        overflow: hidden;
+        background-color: #333;
+        position: fixed;
+        top: 20px;
+        width: auto;
+        padding: 10px 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        min-width: 483px;
+    }
+
+    .navbar a {
+        float: left;
+        display: block;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        border: none;
+        transition: all 0.3s ease-in-out;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .navbar a:hover {
+        color: black;
+    }
+
+    .navbar a::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background-color: #f8f8f8;
+        border-radius: 15px;
+        transform: translate(-50%, -50%);
+        transition: all 0.3s ease-in-out;
+        z-index: -1;
+    }
+
+    .navbar a:hover::before {
+        width: 90%;
+        height: 90%;
+    }
+
+    .navbar .toggle-menu {
+        display: none;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        border: none;
+        transition: all 0.3s ease-in-out;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .navbar .toggle-menu:hover {
+        color: black;
+    }
+
+    .navbar .toggle-menu::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background-color: #f8f8f8;
+        border-radius: 15px;
+        transform: translate(-50%, -50%);
+        transition: all 0.3s ease-in-out;
+        z-index: -1;
+    }
+
+    .navbar .toggle-menu:hover::before {
+        width: 90%;
+        height: 90%;
+    }
+
+    code {
+        background: var(--solarized-base3);
+        --color-code-highlight-bg: var(--solarized-base2);
+        border: 0;
+        word-break: break-word;
+    }
+
+    code span.sharp {
+        color: var(--solarized-base01);
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    .file-list-container {
+        width: 80%;
+        margin: 0 auto;
+        border: 1px solid #ccc;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .file-list-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    .file-name {
+        flex: 4;
+        text-align: left;
+    }
+
+    .file-size {
+        flex: 2;
+        text-align: right;
+    }
+
+    .file-sha {
+        flex: 1;
+        text-align: right;
+    }
+
+    .file-list-item:nth-child(odd) {
+        background-color: rgba(249, 249, 249, 0.2);
+        backdrop-filter: blur(4px);
+    }
+
+    .file-list-item:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .file-list-item span {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .file-list-item a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .file-list-item a:hover {
+        color: #FFA500;
+        text-decoration: underline;
+    }
+
+    .file-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 10px;
+        position: relative;
+        top: 2px;
+    }
+
+    .copy-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin-left: 10px;
+    }
+
+    .copy-button svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .copy-success {
+        position: absolute;
+        background-color: black;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 3px;
+        font-size: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 1001;
+        transition: opacity 0.5s ease-out;
+    }
+
+    .copy-success.fade-out {
+        opacity: 0;
+    }
+
+    html.is-changing .transition-fade {
+        transition: opacity 0.25s;
+        opacity: 1;
+    }
+
+    html.is-animating .transition-fade {
+        opacity: 0;
+    }
+
+    .rounded-container {
+        margin: 20px auto 40px auto;
+        border: 1px solid #ccc;
+        border-radius: 15px;
+        padding: 20px;
+        max-width: 970px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+    }
+
+    @media (max-width: 1030px) {
+        .rounded-container {
+            max-width: calc(100% - 60px);
+        }
+    }
+
+    @media (max-width: 600px) {
+        .navbar a {
+            display: none;
+            flex-direction: column;
+            animation: slideIn 0.3s forwards;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .navbar {
+            min-width: 200px;
+            padding: 10px 5px;
+            flex-direction: column;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .navbar .toggle-menu {
+            display: block;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+</style>
