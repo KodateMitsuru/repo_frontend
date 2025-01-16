@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "pnpm wrangler dev",
     "build": "node tools/build.js",
-    "deploy": "pnpm wrangler deploy"
+    "deploy": "pnpm wrangler deploy",
+    "preview": "pnpm wrangler dev"
   },
   "repository": {
     "type": "git",

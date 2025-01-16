@@ -87,11 +87,11 @@ async function home() {
 }
 
 async function packages() {
-	const packagesText = "packagestext"; ;
+	const packagesText = "packagestext";
 	return packagesText ;
 }
-const scriptText = "scripttext"; ;
+const scriptText = "scripttext";
 
-const navbarText = "navbartext"; ;
+const navbarText = "navbartext";
 
-const styleText = "styletext"; ;
+const headText = "headtext";
