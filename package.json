@@ -1,0 +1,25 @@
+{
+  "name": "repo_frontend",
+  "version": "0.0.1",
+  "description": "repo.kodatemitsuru.com frontend file，based on cloudflare worker",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm wrangler dev",
+    "build": "node tools/build.js",
+    "deploy": "pnpm wrangler deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kodatemitsuru/repo_frontend.git"
+  },
+  "author": "KodateMitsuru",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/kodatemitsuru/repo_frontend/issues"
+  },
+  "homepage": "https://github.com/kodatemitsuru/repo_frontend#readme",
+  "dependencies": {
+    "html-minifier": "^4.0.0",
+    "wrangler": "^3.103.0"
+  }
+}

@@ -1,3 +1,6 @@
 name = "repo_frontend"
-main = "index.js"
+main = "dist/index.js"
 compatibility_date = "2025-01-16"
+
+[build]
+command = "pnpm build"
