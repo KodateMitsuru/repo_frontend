@@ -27,19 +27,19 @@
 			const response = await fetch("custom.db");
 			const arrayBuffer = await response.arrayBuffer();
 			const compressedData = new Uint8Array(arrayBuffer);
-            const decompressedData = new TextDecoder().decode(pako.ungzip(compressedData));
+			const decompressedData = new TextDecoder().decode(pako.ungzip(compressedData));
 			const string = decompressedData.split("\\n");
 			for (let i = 0; i < string.length - 1; i++) {
 				if (string[i].endsWith("%FILENAME%")) {
-					fileList.push({"name":string[i + 1],"size":"Loading..."});
-					fileList.push({"name":string[i + 1]+".sig","size":"Loading..."});
+					fileList.push({ "name": string[i + 1], "size": "Loading..." });
+					fileList.push({ "name": string[i + 1] + ".sig", "size": "Loading..." });
 				}
 			}
 			if (fileList.length === 0) {
 				console.log('No File found');
 			}
 			return fileList;
-			
+
 		} catch (error) {
 			console.error('There was a problem with the fetch operation:', error);
 		}
@@ -216,33 +216,31 @@
 		});
 	}
 
-	function navInEvent (event) {
-		if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)){
-			console.log('navInEvent');
+	function navInEvent(event) {
+		if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)) {
 			const menuItems = document.querySelectorAll('.navbar a');
 			for (const menuItem of menuItems) {
 				menuItem.style.display = "block";
 				menuItem.style.animation = 'slideIn 0.3s forwards';
 			}
 			if (activeLink) {
-				moveIndicator(activeLink,10);
+				moveIndicator(activeLink, 10);
 			}
 		}
 	}
 
-	function navOutEvent (event) {
+	function navOutEvent(event) {
 		if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)) {
 			document.querySelector('.hover-indicator').style.display = 'none';
 			const menuItems = document.querySelectorAll('.navbar a');
 			for (const menuItem of menuItems) {
 				menuItem.style.animation = 'slideOut 0.15s forwards';
-				setTimeout(()=>{menuItem.style.display = "none";},150);
+				setTimeout(() => { menuItem.style.display = "none"; }, 150);
 			}
 		}
 	}
 
-	function moveIndicator(link,offset = 0) {
-		console.log('moveIndicator');
+	function moveIndicator(link, offset = 0) {
 		const indicator = document.querySelector('.hover-indicator');
 		const rect = link.getBoundingClientRect();
 		const navbarRect = link.parentElement.getBoundingClientRect();
@@ -255,7 +253,7 @@
 
 	window.ismobile = false;
 	window.activeLink = null;
-	async function renderMenu () {
+	async function renderMenu() {
 
 		const navbar = document.querySelector('.navbar');
 		const togglemenu = document.querySelector('.toggle-menu');
@@ -264,17 +262,17 @@
 
 		links.forEach(link => {
 			link.style.color = "#f2f2f2";
-            link.addEventListener('mouseover',moveInEvent);
-            link.addEventListener('mouseout',moveOutEvent);
-        });
+			link.addEventListener('mouseover', moveInEvent);
+		});
+		navbar.addEventListener('mouseout', moveOutEvent);
 
 		if (currLink) {
 			activeLink = currLink;
 			moveIndicator(currLink);
 			currLink.style.color = "black";
-		} 
+		}
 
-		if (window.innerWidth <= 600){
+		if (window.innerWidth <= 600) {
 			ismobile = true;
 			document.querySelector('.hover-indicator').style.display = 'none';
 			for (const menuItem of links) {
@@ -294,51 +292,51 @@
 			}
 		}
 
-		function moveInEvent (event){
+		function moveInEvent(event) {
 			let link = event.target;
-            while (link && !link.getAttribute('href')) {
-                link = link.parentNode;
-            }
+			while (link && !link.getAttribute('href')) {
+				link = link.parentNode;
+			}
 
-            const href = link.getAttribute('href');
-            const targetLink = Array.from(links).find(l => l.getAttribute('href') === href);
-			console.log(targetLink);
+			const href = link.getAttribute('href');
+			const targetLink = Array.from(links).find(l => l.getAttribute('href') === href);
+
 			if (targetLink) {
-				
 				if (activeLink) {
-                    activeLink.style.color = "#f2f2f2";
-                }
+					activeLink.style.color = "#f2f2f2";
+				}
 				activeLink = targetLink;
 				targetLink.style.color = "black";
 				moveIndicator(targetLink);
-			} else if (currLink) {
-				activeLink = currLink;
-				moveIndicator(activeLink);
-			} else {
-				document.querySelector('.hover-indicator').style.display = 'none';
-			}
-		}
-	
-		function moveOutEvent (event) {
-			if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)){
 				return;
 			}
-			if (activeLink && currLink) {
-				activeLink.style.color = "#f2f2f2";
+			if (currLink) {
 				activeLink = currLink;
-				activeLink.style.color = "black";
-				moveIndicator(currLink);
-			} else if (currLink) {
-				activeLink = currLink;
-				activeLink.style.color = "black";
-				moveIndicator(currLink);
-			} else {
-				document.querySelector('.hover-indicator').style.display = 'none';
+				moveIndicator(activeLink);
+				return;
 			}
+			document.querySelector('.hover-indicator').style.display = 'none';
 		}
-        
+
+		function moveOutEvent(event) {
+			if (event.relatedTarget && document.querySelector('.navbar').contains(event.relatedTarget)) {
+				return;
+			}
+			if (activeLink) {
+				activeLink.style.color = "#f2f2f2";
+			}
+			if (currLink) {
+				activeLink = currLink;
+				activeLink.style.color = "black";
+				moveIndicator(currLink);
+				return;
+			}
+			document.querySelector('.hover-indicator').style.display = 'none';
+			activeLink.style.color = "#f2f2f2";
+			activeLink = null;
+		}
 	}
-	swup.hooks.on('content:replace', async () => { 
+	swup.hooks.on('content:replace', async () => {
 		await renderFileList();
 		await renderMenu();
 	});
