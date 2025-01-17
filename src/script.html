@@ -325,16 +325,15 @@
 			}
 			if (activeLink) {
 				activeLink.style.color = "#f2f2f2";
+				activeLink = null;
 			}
 			if (currLink) {
 				activeLink = currLink;
 				activeLink.style.color = "black";
-				moveIndicator(currLink);
+				moveIndicator(activeLink);
 				return;
 			}
 			document.querySelector('.hover-indicator').style.display = 'none';
-			activeLink.style.color = "#f2f2f2";
-			activeLink = null;
 		}
 	}
 	swup.hooks.on('content:replace', async () => {
