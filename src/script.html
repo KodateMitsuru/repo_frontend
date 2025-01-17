@@ -4,7 +4,8 @@
 <script src="https://cdn.jsdelivr.net/npm/pako@2.0.4/dist/pako.min.js"></script>
 <script>
 	const swup = new Swup({
-		plugins: [new SwupScrollPlugin(), new SwupPreloadPlugin()]
+		plugins: [new SwupScrollPlugin(), new SwupPreloadPlugin()],
+		containers: ['#swup','#menu']
 	});
 	function formatSize(size) {
 		const units = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB'];
