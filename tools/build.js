@@ -38,6 +38,7 @@ for (const filename of htmlFiles) {
         minifyJS: true,
     });
 
+
 	// 将 filenameContent 嵌入到 index.js 中的对应变量
 	const regex = new RegExp(`const ${variableName} = \"[\\s\\S]*?\"`);
 	templateContent = templateContent.replace(

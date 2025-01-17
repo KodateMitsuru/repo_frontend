@@ -218,16 +218,21 @@
 
 	function navInEvent (event) {
 		if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)){
+			console.log('navInEvent');
 			const menuItems = document.querySelectorAll('.navbar a');
 			for (const menuItem of menuItems) {
 				menuItem.style.display = "block";
 				menuItem.style.animation = 'slideIn 0.3s forwards';
+			}
+			if (activeLink) {
+				moveIndicator(activeLink);
 			}
 		}
 	}
 
 	function navOutEvent (event) {
 		if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)) {
+			document.querySelector('.hover-indicator').style.display = 'none';
 			const menuItems = document.querySelectorAll('.navbar a');
 			for (const menuItem of menuItems) {
 				menuItem.style.animation = 'slideOut 0.15s forwards';
@@ -235,14 +240,44 @@
 			}
 		}
 	}
+
+	function moveIndicator(link) {
+		console.log('moveIndicator');
+		const indicator = document.querySelector('.hover-indicator');
+		const rect = link.getBoundingClientRect();
+		const navbarRect = link.parentElement.getBoundingClientRect();
+		indicator.style.width = `${rect.width}px`;
+		indicator.style.height = `${rect.height}px`;
+		indicator.style.left = `${rect.left - navbarRect.left}px`;
+		indicator.style.top = `${rect.top - navbarRect.top}px`;
+		indicator.style.display = 'block';
+	}
+
 	window.ismobile = false;
-	function renderMenu () {
+	window.activeLink = null;
+	async function renderMenu () {
+
 		const navbar = document.querySelector('.navbar');
 		const togglemenu = document.querySelector('.toggle-menu');
-		const menuItems = document.querySelectorAll('.navbar a');
+		const links = navbar.querySelectorAll('a');
+		const currLink = Array.from(links).find(l => l.getAttribute('href') === window.location.pathname);
+
+		links.forEach(link => {
+			link.style.color = "#f2f2f2";
+            link.addEventListener('mouseover',moveInEvent);
+            link.addEventListener('mouseout',moveOutEvent);
+        });
+
+		if (currLink) {
+			activeLink = currLink;
+			moveIndicator(currLink);
+			currLink.style.color = "black";
+		} 
+
 		if (window.innerWidth <= 600){
 			ismobile = true;
-			for (const menuItem of menuItems) {
+			document.querySelector('.hover-indicator').style.display = 'none';
+			for (const menuItem of links) {
 				menuItem.style.display = "none";
 			}
 			navbar.addEventListener("mouseover", navInEvent);
@@ -253,23 +288,63 @@
 			navbar.removeEventListener("mouseover", navInEvent);
 			togglemenu.removeEventListener("click", navInEvent);
 			navbar.removeEventListener("mouseout", navOutEvent);
-			for (const menuItem of menuItems) {
+			for (const menuItem of links) {
 				menuItem.style.display = "block";
 				menuItem.style.animation = '';
 			}
 		}
+
+		function moveInEvent (event){
+			let link = event.target;
+            while (link && !link.getAttribute('href')) {
+                link = link.parentNode;
+            }
+
+            const href = link.getAttribute('href');
+            const targetLink = Array.from(links).find(l => l.getAttribute('href') === href);
+			console.log(targetLink);
+			if (targetLink) {
+				
+				if (activeLink) {
+                    activeLink.style.color = "#f2f2f2";
+                }
+				activeLink = targetLink;
+				targetLink.style.color = "black";
+				moveIndicator(targetLink);
+			} else if (currLink) {
+				activeLink = currLink;
+				moveIndicator(activeLink);
+			} else {
+				document.querySelector('.hover-indicator').style.display = 'none';
+			}
+		}
+	
+		function moveOutEvent (event) {
+			if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)){
+				return;
+			}
+			if (activeLink) {
+				activeLink.style.color = "#f2f2f2";
+				activeLink = currLink;
+				currLink.style.color = "black";
+				moveIndicator(currLink);
+			} else {
+				document.querySelector('.hover-indicator').style.display = 'none';
+			}
+		}
+        
 	}
 	swup.hooks.on('content:replace', async () => { 
 		await renderFileList();
-		renderMenu();
+		await renderMenu();
 	});
 	document.addEventListener('DOMContentLoaded', async () => {
 		await renderFileList();
-		renderMenu();
+		await renderMenu();
 	});
-	window.addEventListener('resize', function() {
+	window.addEventListener('resize', async () => {
 		if (ismobile !== (window.innerWidth <= 600)) {
-			renderMenu();
+			await renderMenu();
 		}
 	});
 </script>
