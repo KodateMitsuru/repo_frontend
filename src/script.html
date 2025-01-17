@@ -225,7 +225,7 @@
 				menuItem.style.animation = 'slideIn 0.3s forwards';
 			}
 			if (activeLink) {
-				moveIndicator(activeLink);
+				moveIndicator(activeLink,10);
 			}
 		}
 	}
@@ -241,7 +241,7 @@
 		}
 	}
 
-	function moveIndicator(link) {
+	function moveIndicator(link,offset = 0) {
 		console.log('moveIndicator');
 		const indicator = document.querySelector('.hover-indicator');
 		const rect = link.getBoundingClientRect();
@@ -249,7 +249,7 @@
 		indicator.style.width = `${rect.width}px`;
 		indicator.style.height = `${rect.height}px`;
 		indicator.style.left = `${rect.left - navbarRect.left}px`;
-		indicator.style.top = `${rect.top - navbarRect.top}px`;
+		indicator.style.top = `${rect.top - navbarRect.top + offset}px`;
 		indicator.style.display = 'block';
 	}
 
@@ -323,10 +323,14 @@
 			if (!event.relatedTarget || !document.querySelector('.navbar').contains(event.relatedTarget)){
 				return;
 			}
-			if (activeLink) {
+			if (activeLink && currLink) {
 				activeLink.style.color = "#f2f2f2";
 				activeLink = currLink;
-				currLink.style.color = "black";
+				activeLink.style.color = "black";
+				moveIndicator(currLink);
+			} else if (currLink) {
+				activeLink = currLink;
+				activeLink.style.color = "black";
 				moveIndicator(currLink);
 			} else {
 				document.querySelector('.hover-indicator').style.display = 'none';
